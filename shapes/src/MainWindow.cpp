@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include <QPainter>
+#include <QMessageBox>
 
 
 class MyPainter: public Painter
@@ -44,9 +45,12 @@ void MainWindow::on_btnAdd_clicked()
 	else if( rbSquare->isChecked() )
 		m_pScene->addSquare( c, 10.0 );
 	else if( rbRectangle->isChecked() )
-		m_pScene->addRectangle( c, 10.0 );
+		m_pScene->addRectangle( c, 30.0, 20.0 );
 	else
-		m_pScene->addPolygon( 5, c, 10.0 );
+	{
+		QMessageBox::critical( this, tr( "Error" ), tr( "No shape selected!" ) );
+		return;
+	}
 
 	repaint();
 }

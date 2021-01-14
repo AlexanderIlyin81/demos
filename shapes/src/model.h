@@ -69,6 +69,19 @@ private:
 	unsigned num_vertices;
 };
 
+class Rectangle: public Shape
+{
+public:
+
+	Rectangle( const Point& c, double w, double h );
+
+	virtual void draw( Painter& p ) const override;
+
+private:
+	double width;
+	double height;
+};
+
 class Scene
 {
 public:
@@ -77,7 +90,7 @@ public:
 	void addCircle( const Point& c, double r );
 	void addTriangle( const Point& c, double r );
 	void addSquare( const Point& c, double r );
-	void addRectangle( const Point& c, double r );
+	void addRectangle( const Point& c, double w, double h );
 	void addPolygon( unsigned vertices, const Point& c, double r );
 
 	void draw( Painter& p ) const;
