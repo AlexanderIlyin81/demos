@@ -2,7 +2,8 @@
 #define MODEL_H
 
 
-#include <vector>
+#include <list>
+#include <memory>
 
 
 struct Point
@@ -34,6 +35,9 @@ protected:
 	Point center;
 	double radius;
 };
+
+typedef std::tr1::shared_ptr<Shape> Shape_t;
+typedef std::list<Shape_t> ShapeList_t;
 
 class Edge: public Shape
 {
@@ -96,7 +100,7 @@ public:
 	void draw( Painter& p ) const;
 
 private:
-	std::vector<Shape*> shapes;
+	ShapeList_t shapes;
 };
 
 

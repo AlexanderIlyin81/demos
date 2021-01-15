@@ -10,7 +10,7 @@ public:
 		: m_Painter( p )
 	{}
 
-	void operator() ( const Shape* shape )
+	void operator() ( const Shape_t& shape )
 	{
 		shape->draw( m_Painter );
 	}
@@ -18,11 +18,6 @@ public:
 private:
 	Painter& m_Painter;
 };
-
-void deleteShape( Shape* s )
-{
-	delete s;
-}
 
 Shape::Shape( const Point& c, double r )
 : center( c ), radius( r )
@@ -59,7 +54,7 @@ Polygon::Polygon( unsigned vertices, const Point& c, double r )
 
 void Polygon::draw( Painter& p ) const
 {
-	std::vector<Edge*> edges;
+	ShapeList_t edges;
 	ShapeDrawer d( p );
 
 	for( unsigned i = 0; i < num_vertices; ++i )
@@ -81,11 +76,10 @@ void Polygon::draw( Painter& p ) const
 		Point p1( center.x + radius * cos( a1 ), center.y + radius * sin( a1 ) );
 		Point p2( center.x + radius * cos( a2 ), center.y + radius * sin( a2 ) );
 
-		edges.push_back( new Edge( p1, p2 ) );
+		edges.push_back( Shape_t( new Edge( p1, p2 ) ) );
 	}
 
 	for_each( edges.begin(), edges.end(), d );
-	for_each( edges.begin(), edges.end(), deleteShape );
 }
 
 Rectangle::Rectangle( const Point& c, double w, double h )
@@ -95,7 +89,7 @@ Rectangle::Rectangle( const Point& c, double w, double h )
 
 void Rectangle::draw( Painter& p ) const
 {
-	std::vector<Edge*> edges;
+	ShapeList_t edges;
 	ShapeDrawer d( p );
 
 	double left = center.x - width / 2;
@@ -111,40 +105,38 @@ void Rectangle::draw( Painter& p ) const
 	};
 
 	for( int i = 0; i < 4; ++i )
-		edges.push_back( new Edge( pts[ i % 4 ], pts[ ( i + 1 ) % 4 ] ) );
+		edges.push_back( Shape_t( new Edge( pts[ i % 4 ], pts[ ( i + 1 ) % 4 ] ) ) );
 
 	for_each( edges.begin(), edges.end(), d );
-	for_each( edges.begin(), edges.end(), deleteShape );
 }
 
 Scene::~Scene()
 {
-	for_each( shapes.begin(), shapes.end(), deleteShape );
 }
 
 void Scene::addCircle( const Point& c, double r )
 {
-	shapes.push_back( new Circle( c, r ) );
+	shapes.push_back( Shape_t( new Circle( c, r ) ) );
 }
 
 void Scene::addTriangle( const Point& c, double r )
 {
-	shapes.push_back( new Polygon( 3, c, r ) );
+	shapes.push_back( Shape_t( new Polygon( 3, c, r ) ) );
 }
 
 void Scene::addSquare( const Point& c, double r )
 {
-	shapes.push_back( new Polygon( 4, c, r ) );
+	shapes.push_back( Shape_t( new Polygon( 4, c, r ) ) );
 }
 
 void Scene::addRectangle( const Point& c, double w, double h )
 {
-	shapes.push_back( new Rectangle( c, w, h ) );
+	shapes.push_back( Shape_t( new Rectangle( c, w, h ) ) );
 }
 
 void Scene::addPolygon( unsigned vertices, const Point& c, double r )
 {
-	shapes.push_back( new Polygon( 5, c, r ) );
+	shapes.push_back( Shape_t( new Polygon( vertices, c, r ) ) );
 }
 
 void Scene::draw( Painter& p ) const

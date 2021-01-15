@@ -37,6 +37,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_btnAdd_clicked()
 {
 	Point c( 400.0 * rand() / RAND_MAX, 300.0 * rand() / RAND_MAX );
+	unsigned vertices = 10 * rand() / RAND_MAX + 4;
 
 	if( rbCircle->isChecked() )
 		m_pScene->addCircle( c, 10.0 );
@@ -46,6 +47,8 @@ void MainWindow::on_btnAdd_clicked()
 		m_pScene->addSquare( c, 10.0 );
 	else if( rbRectangle->isChecked() )
 		m_pScene->addRectangle( c, 30.0, 20.0 );
+	else if( rbPolygon->isChecked() )
+		m_pScene->addPolygon( vertices, c, 30.0 );
 	else
 	{
 		QMessageBox::critical( this, tr( "Error" ), tr( "No shape selected!" ) );
