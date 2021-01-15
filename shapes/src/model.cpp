@@ -19,14 +19,35 @@ private:
 	Painter& m_Painter;
 };
 
-Shape::Shape( const Point& c, double r )
-: center( c ), radius( r )
+class ShapeMover
 {
+public:
+	ShapeMover( Time t )
+		: m_Time( t )
+	{}
+
+	void operator() ( Shape_t& shape )
+	{
+		shape->move( m_Time );
+	}
+
+private:
+	Time m_Time;
+};
+
+Shape::Shape( const Point& c, double r, const Velocity& v  )
+: center( c ), radius( r ), velocity( v )
+{
+}
+
+void Shape::move( Time t )
+{
+	center += velocity * t;
 }
 
 Edge::Edge( const Point& _begin, const Point& _end )
 : Shape( Point( ( _begin.x + _end.x ) / 2, ( _begin.y + _end.y ) / 2  ),
-		sqrt( pow( _begin.x - _end.x, 2 ) + pow( _begin.y - _end.y, 2 ) ) ),
+		sqrt( pow( _begin.x - _end.x, 2 ) + pow( _begin.y - _end.y, 2 ) ), Velocity( 0, 0 ) ),
 	begin( _begin ), end( _end )
 {
 }
@@ -37,8 +58,8 @@ void Edge::draw( Painter& p ) const
 }
 
 
-Circle::Circle( const Point& c, double r )
-: Shape( c, r )
+Circle::Circle( const Point& c, double r, const Velocity& v )
+: Shape( c, r, v )
 {
 }
 
@@ -47,8 +68,8 @@ void Circle::draw( Painter& p ) const
 	p.drawCircle( center, radius );
 }
 
-Polygon::Polygon( unsigned vertices, const Point& c, double r )
-: Shape( c, r ), num_vertices( vertices )
+Polygon::Polygon( unsigned vertices, const Point& c, double r, const Velocity& v )
+: Shape( c, r, v ), num_vertices( vertices )
 {
 }
 
@@ -82,8 +103,8 @@ void Polygon::draw( Painter& p ) const
 	for_each( edges.begin(), edges.end(), d );
 }
 
-Rectangle::Rectangle( const Point& c, double w, double h )
-: Shape( c, sqrt( w * w + h * h ) ), width( w ), height( h )
+Rectangle::Rectangle( const Point& c, double w, double h, const Velocity& v )
+: Shape( c, sqrt( w * w + h * h ), v ), width( w ), height( h )
 {
 }
 
@@ -114,29 +135,29 @@ Scene::~Scene()
 {
 }
 
-void Scene::addCircle( const Point& c, double r )
+void Scene::addCircle( const Point& c, double r, const Velocity& v )
 {
-	shapes.push_back( Shape_t( new Circle( c, r ) ) );
+	shapes.push_back( Shape_t( new Circle( c, r, v ) ) );
 }
 
-void Scene::addTriangle( const Point& c, double r )
+void Scene::addTriangle( const Point& c, double r, const Velocity& v )
 {
-	shapes.push_back( Shape_t( new Polygon( 3, c, r ) ) );
+	shapes.push_back( Shape_t( new Polygon( 3, c, r, v ) ) );
 }
 
-void Scene::addSquare( const Point& c, double r )
+void Scene::addSquare( const Point& c, double r, const Velocity& v )
 {
-	shapes.push_back( Shape_t( new Polygon( 4, c, r ) ) );
+	shapes.push_back( Shape_t( new Polygon( 4, c, r, v ) ) );
 }
 
-void Scene::addRectangle( const Point& c, double w, double h )
+void Scene::addRectangle( const Point& c, double w, double h, const Velocity& v )
 {
-	shapes.push_back( Shape_t( new Rectangle( c, w, h ) ) );
+	shapes.push_back( Shape_t( new Rectangle( c, w, h, v ) ) );
 }
 
-void Scene::addPolygon( unsigned vertices, const Point& c, double r )
+void Scene::addPolygon( unsigned vertices, const Point& c, double r, const Velocity& v )
 {
-	shapes.push_back( Shape_t( new Polygon( vertices, c, r ) ) );
+	shapes.push_back( Shape_t( new Polygon( vertices, c, r, v ) ) );
 }
 
 void Scene::draw( Painter& p ) const
@@ -144,4 +165,11 @@ void Scene::draw( Painter& p ) const
 	ShapeDrawer d( p );
 
 	for_each( shapes.begin(), shapes.end(), d );
+}
+
+void Scene::move( Time t )
+{
+	ShapeMover m( t );
+
+	for_each( shapes.begin(), shapes.end(), m );
 }

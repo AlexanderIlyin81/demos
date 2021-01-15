@@ -5,12 +5,45 @@
 #include <list>
 #include <memory>
 
+typedef double Time;
+
+struct Distance
+{
+	Distance( double _x, double _y )
+		: x( _x ), y( _y )
+	{}
+
+	double x;
+	double y;
+};
 
 struct Point
 {
 	Point( double _x, double _y )
 		: x( _x ), y( _y )
 	{}
+
+	Point& operator+= ( const Distance& d )
+	{
+		x += d.x;
+		y += d.y;
+		return *this;
+	}
+
+	double x;
+	double y;
+};
+
+struct Velocity
+{
+	Velocity( double _x, double _y )
+		: x( _x ), y( _y )
+	{}
+
+	Distance operator* ( Time t )
+	{
+		return Distance( x * t, y * t );
+	}
 
 	double x;
 	double y;
@@ -27,13 +60,15 @@ public:
 class Shape
 {
 public:
-	Shape( const Point& c, double r );
+	Shape( const Point& c, double r, const Velocity& v );
 
 	virtual void draw( Painter& p ) const = 0;
+	virtual void move( Time t );
 
 protected:
 	Point center;
 	double radius;
+	Velocity velocity;
 };
 
 typedef std::tr1::shared_ptr<Shape> Shape_t;
@@ -56,7 +91,7 @@ class Circle: public Shape
 {
 public:
 
-	Circle( const Point& c, double r );
+	Circle( const Point& c, double r, const Velocity& v );
 
 	virtual void draw( Painter& p ) const override;
 };
@@ -65,7 +100,7 @@ class Polygon: public Shape
 {
 public:
 
-	Polygon( unsigned vertices, const Point& c, double r );
+	Polygon( unsigned vertices, const Point& c, double r, const Velocity& v );
 
 	virtual void draw( Painter& p ) const override;
 
@@ -77,7 +112,7 @@ class Rectangle: public Shape
 {
 public:
 
-	Rectangle( const Point& c, double w, double h );
+	Rectangle( const Point& c, double w, double h, const Velocity& v );
 
 	virtual void draw( Painter& p ) const override;
 
@@ -91,13 +126,14 @@ class Scene
 public:
 	~Scene();
 
-	void addCircle( const Point& c, double r );
-	void addTriangle( const Point& c, double r );
-	void addSquare( const Point& c, double r );
-	void addRectangle( const Point& c, double w, double h );
-	void addPolygon( unsigned vertices, const Point& c, double r );
+	void addCircle( const Point& c, double r, const Velocity& v );
+	void addTriangle( const Point& c, double r, const Velocity& v );
+	void addSquare( const Point& c, double r, const Velocity& v );
+	void addRectangle( const Point& c, double w, double h, const Velocity& v );
+	void addPolygon( unsigned vertices, const Point& c, double r, const Velocity& v );
 
 	void draw( Painter& p ) const;
+	void move( Time t );
 
 private:
 	ShapeList_t shapes;

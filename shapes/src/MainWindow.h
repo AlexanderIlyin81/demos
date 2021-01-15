@@ -18,6 +18,7 @@ public:
 
 protected:
 	void paintEvent( QPaintEvent* pe ) override;
+	void timerEvent( QTimerEvent* te ) override;
 
 protected slots:
 	void on_btnAdd_clicked();
