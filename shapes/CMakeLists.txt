@@ -4,6 +4,9 @@ set( CMAKE_PROJECT_NAME Shapes )
 
 project( ${CMAKE_PROJECT_NAME} )
 
+set( CMAKE_AUTOUIC ON )
+set( CMAKE_AUTOMOC ON )
+
 # Каталог для собранных программ и скриптов.
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" )
 
@@ -21,29 +24,18 @@ if( MSVC )
 	endif (DEFINED CMAKE_CXX_FLAGS_RELEASE)
 endif()
 
-find_package( Qt4 COMPONENTS QtCore QtGui REQUIRED )
+if( VS2008 )
+	add_definitions( -Dunique_ptr=auto_ptr -Dnullptr=NULL )
+	find_package( Qt4 COMPONENTS QtCore QtGui REQUIRED )
+	include( ${QT_USE_FILE} )
+else()
+	find_package( QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED )
+	find_package( Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED )
+	set( QT_LIBRARIES Qt${QT_VERSION_MAJOR}::Widgets )
+endif()
    
-include( ${QT_USE_FILE} )
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
-
-set( MOC_SOURCES
-	src/MainWindow.h
-)
-
-set( UI_HEADERS
-	src/UI/MainWindow.ui
-)
-
-#Create MOC files
-qt4_wrap_cpp( MOCED_SOURCES
-	${MOC_SOURCES}
-)
-
-#Create headers from .ui files
-qt4_wrap_ui( UI_HEADERS 
-	${UI_HEADERS}
-)
 
 add_executable( Shapes
 	src/main.cpp
@@ -51,8 +43,11 @@ add_executable( Shapes
 	src/MainWindow.cpp
 	src/model.h
 	src/model.cpp
-	${MOCED_SOURCES}
-	${UI_HEADERS}
+	src/MainWindow.ui
+)
+
+target_compile_definitions( Shapes PRIVATE
+	-D_USE_MATH_DEFINES
 )
 
 target_link_libraries( Shapes ${QT_LIBRARIES} )

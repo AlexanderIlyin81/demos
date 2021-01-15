@@ -5,13 +5,15 @@
 #include "ui_MainWindow.h"
 #include "model.h"
 
+#include <memory>
+
 
 class MainWindow: public QMainWindow, private Ui::MainWindow
 {
 	Q_OBJECT
 
 public:
-	MainWindow( QWidget* parent = NULL );
+	MainWindow( QWidget* parent = nullptr );
 	virtual ~MainWindow();
 
 protected:
@@ -21,7 +23,7 @@ protected slots:
 	void on_btnAdd_clicked();
 
 private:
-	std::auto_ptr<Scene> m_pScene;
+	std::unique_ptr<Scene> m_pScene;
 };
 
 
