@@ -3,6 +3,8 @@
 #include <cmath>
 
 
+#if _MSC_VER == 1500
+
 class ShapeDrawer
 {
 public:
@@ -34,6 +36,8 @@ public:
 private:
 	Time m_Time;
 };
+
+#endif // _MSC_VER == 1500
 
 Shape::Shape( const Point& c, double r, const Velocity& v  )
 : center( c ), radius( r ), velocity( v )
@@ -76,7 +80,10 @@ Polygon::Polygon( unsigned vertices, const Point& c, double r, const Velocity& v
 void Polygon::draw( Painter& p ) const
 {
 	ShapeList_t edges;
+
+#if _MSC_VER == 1500
 	ShapeDrawer d( p );
+#endif // _MSC_VER == 1500
 
 	for( unsigned i = 0; i < num_vertices; ++i )
 	{
@@ -100,7 +107,11 @@ void Polygon::draw( Painter& p ) const
 		edges.push_back( Shape_t( new Edge( p1, p2 ) ) );
 	}
 
+#if _MSC_VER == 1500
 	for_each( edges.begin(), edges.end(), d );
+#else
+	for_each( edges.begin(), edges.end(), [ &p ]( const auto& e ) { e->draw( p ); } );
+#endif // _MSC_VER == 1500
 }
 
 Rectangle::Rectangle( const Point& c, double w, double h, const Velocity& v )
@@ -111,7 +122,10 @@ Rectangle::Rectangle( const Point& c, double w, double h, const Velocity& v )
 void Rectangle::draw( Painter& p ) const
 {
 	ShapeList_t edges;
+
+#if _MSC_VER == 1500
 	ShapeDrawer d( p );
+#endif // _MSC_VER == 1500
 
 	double left = center.x - width / 2;
 	double right = center.x + width / 2;
@@ -128,7 +142,11 @@ void Rectangle::draw( Painter& p ) const
 	for( int i = 0; i < 4; ++i )
 		edges.push_back( Shape_t( new Edge( pts[ i % 4 ], pts[ ( i + 1 ) % 4 ] ) ) );
 
+#if _MSC_VER == 1500
 	for_each( edges.begin(), edges.end(), d );
+#else
+	for_each( edges.begin(), edges.end(), [ &p ]( const auto& e ) { e->draw( p ); } );
+#endif // _MSC_VER == 1500
 }
 
 Scene::~Scene()
@@ -162,14 +180,20 @@ void Scene::addPolygon( unsigned vertices, const Point& c, double r, const Veloc
 
 void Scene::draw( Painter& p ) const
 {
+#if _MSC_VER == 1500
 	ShapeDrawer d( p );
-
 	for_each( shapes.begin(), shapes.end(), d );
+#else
+	for_each( shapes.begin(), shapes.end(), [ &p ]( const auto& s ) { s->draw( p ); } );
+#endif // _MSC_VER == 1500
 }
 
 void Scene::move( Time t )
 {
+#if _MSC_VER == 1500
 	ShapeMover m( t );
-
 	for_each( shapes.begin(), shapes.end(), m );
+#else
+	for_each( shapes.begin(), shapes.end(), [ t ]( const auto& s ) { s->move( t ); } );
+#endif // _MSC_VER == 1500
 }
