@@ -71,10 +71,10 @@ protected:
 	Velocity velocity;
 };
 
-#ifdef _MSC_VER
+#if _MSC_VER == 1500
 	typedef std::tr1::shared_ptr<Shape> Shape_t;
 #else
-	typedef std::shared_ptr<Shape> Shape_t;
+	typedef std::unique_ptr<Shape> Shape_t;
 #endif // _MSC_VER
 
 typedef std::list<Shape_t> ShapeList_t;

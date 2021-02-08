@@ -81,10 +81,6 @@ void Polygon::draw( Painter& p ) const
 {
 	ShapeList_t edges;
 
-#if _MSC_VER == 1500
-	ShapeDrawer d( p );
-#endif // _MSC_VER == 1500
-
 	for( unsigned i = 0; i < num_vertices; ++i )
 	{
 		double a1 = 2 * M_PI * i / num_vertices;
@@ -108,7 +104,7 @@ void Polygon::draw( Painter& p ) const
 	}
 
 #if _MSC_VER == 1500
-	for_each( edges.begin(), edges.end(), d );
+	for_each( edges.begin(), edges.end(), ShapeDrawer( p ) );
 #else
 	for_each( edges.begin(), edges.end(), [ &p ]( const auto& e ) { e->draw( p ); } );
 #endif // _MSC_VER == 1500
@@ -122,10 +118,6 @@ Rectangle::Rectangle( const Point& c, double w, double h, const Velocity& v )
 void Rectangle::draw( Painter& p ) const
 {
 	ShapeList_t edges;
-
-#if _MSC_VER == 1500
-	ShapeDrawer d( p );
-#endif // _MSC_VER == 1500
 
 	double left = center.x - width / 2;
 	double right = center.x + width / 2;
@@ -143,7 +135,7 @@ void Rectangle::draw( Painter& p ) const
 		edges.push_back( Shape_t( new Edge( pts[ i % 4 ], pts[ ( i + 1 ) % 4 ] ) ) );
 
 #if _MSC_VER == 1500
-	for_each( edges.begin(), edges.end(), d );
+	for_each( edges.begin(), edges.end(), ShapeDrawer( p ) );
 #else
 	for_each( edges.begin(), edges.end(), [ &p ]( const auto& e ) { e->draw( p ); } );
 #endif // _MSC_VER == 1500
@@ -181,8 +173,7 @@ void Scene::addPolygon( unsigned vertices, const Point& c, double r, const Veloc
 void Scene::draw( Painter& p ) const
 {
 #if _MSC_VER == 1500
-	ShapeDrawer d( p );
-	for_each( shapes.begin(), shapes.end(), d );
+	for_each( shapes.begin(), shapes.end(), ShapeDrawer( p ) );
 #else
 	for_each( shapes.begin(), shapes.end(), [ &p ]( const auto& s ) { s->draw( p ); } );
 #endif // _MSC_VER == 1500
@@ -191,8 +182,7 @@ void Scene::draw( Painter& p ) const
 void Scene::move( Time t )
 {
 #if _MSC_VER == 1500
-	ShapeMover m( t );
-	for_each( shapes.begin(), shapes.end(), m );
+	for_each( shapes.begin(), shapes.end(), ShapeMover( t ) );
 #else
 	for_each( shapes.begin(), shapes.end(), [ t ]( const auto& s ) { s->move( t ); } );
 #endif // _MSC_VER == 1500
